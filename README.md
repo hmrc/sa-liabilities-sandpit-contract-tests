@@ -1,53 +1,26 @@
-**This is the template README. Please update this with project specific content.**
 
-# sa-liabilities-sandpit-contract-tests
+# SA Liabilities Sandpit Contract Tests
 
-<SERVICE_NAME> API tests.
+## Overview
+This repository contains contract tests for the SA Liabilities Sandpit API, which retrieves liabilities details for users.
+As this API is developed as a sampler project, the tests are run locally and not against any environments. These tests ensures that the API behaves as expected in scenarios as per teh functional stories: 
 
 ## Pre-requisites
+To run tests locally:
+1. Check for active HMRC MDTP VPN
+2. Local machine is setup as per the MDTP Developer setup manual
 
-### Services
-
-Start Mongo Docker container as follows:
+### Running tests
+ 
+* To run a specific test:
 
 ```bash
-docker run --rm -d -p 27017:27017 --name mongo percona/percona-server-mongodb:5.0
+./run-contract-local.sh 
 ```
-
-Start `<SERVICE_MANAGER_PROFILE>` services as follows:
-
-```bash
-sm2 --start <SERVICE_MANAGER_PROFILE>
-```
-
-## Tests
-
-Run tests as follows:
-
-* Argument `<environment>` must be `local`, `dev`, `qa` or `staging`.
+* To run a specific test:
 
 ```bash
-./run-tests.sh <environment>
-```
-
-## Scalafmt
-
-Check all project files are formatted as expected as follows:
-
-```bash
-sbt scalafmtCheckAll scalafmtCheck
-```
-
-Format `*.sbt` and `project/*.scala` files as follows:
-
-```bash
-sbt scalafmtSbt
-```
-
-Format all project files as follows:
-
-```bash
-sbt scalafmtAll
+sbt -Denv=local 'testOnly features.{feature name here}'
 ```
 
 ## License
