@@ -17,41 +17,31 @@
 package uk.gov.hmrc.api.client
 
 import akka.actor.ActorSystem
-import play.api.libs.ws.DefaultBodyWritables._
-import play.api.libs.ws.{DefaultWSProxyServer, StandaloneWSRequest}
-import play.api.libs.ws.ahc.StandaloneAhcWSClient
+import play.api.libs.ws.ahc.{AhcConfigBuilder, StandaloneAhcWSClient}
+import play.api.libs.ws.StandaloneWSResponse
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{Await, Awaitable}
+import scala.concurrent.duration._
+import scala.language.postfixOps
 
 trait HttpClient {
 
-  implicit val actorSystem: ActorSystem = ActorSystem()
-  val wsClient: StandaloneAhcWSClient   = StandaloneAhcWSClient()
-  implicit val ec: ExecutionContext     = ExecutionContext.global
-  lazy val shouldProxyForZap: Boolean   = sys.props.get("security.assessment").exists(_.toBoolean)
+  val builder: AhcConfigBuilder                = new AhcConfigBuilder()
+  implicit val system: ActorSystem             = ActorSystem()
+  implicit val wsClient: StandaloneAhcWSClient = StandaloneAhcWSClient()
 
-  def standAloneWsRequestWithProxyIfConfigSet(standAloneWsRequest: StandaloneWSRequest): StandaloneWSRequest =
-    if (shouldProxyForZap) {
-      standAloneWsRequest.withProxyServer(
-        DefaultWSProxyServer(protocol = Some("http"), host = "localhost", port = 11000)
-      )
-    } else {
-      standAloneWsRequest
+  def getUrl(url: String, requestHeaders: Option[Seq[(String, String)]] = None)(implicit
+    client: StandaloneAhcWSClient
+  ): StandaloneWSResponse = {
+    val request = client.url(url)
+    await {
+      println(s"GET $url\nHeaders:$requestHeaders")
+      requestHeaders match {
+        case Some(h) => request.withHttpHeaders(h: _*).get()
+        case None    => request.get()
+      }
     }
-
-  def get(url: String, headers: (String, String)*): Future[StandaloneWSRequest#Self#Response] =
-    standAloneWsRequestWithProxyIfConfigSet(wsClient.url(url))
-      .withHttpHeaders(headers: _*)
-      .get()
-
-  def post(url: String, bodyAsJson: String, headers: (String, String)*): Future[StandaloneWSRequest#Self#Response] =
-    standAloneWsRequestWithProxyIfConfigSet(wsClient.url(url))
-      .withHttpHeaders(headers: _*)
-      .post(bodyAsJson)
-
-  def delete(url: String, headers: (String, String)*): Future[StandaloneWSRequest#Self#Response] =
-    standAloneWsRequestWithProxyIfConfigSet(wsClient.url(url))
-      .withHttpHeaders(headers: _*)
-      .delete()
-
+  }
+  protected val awaitableTimeout: FiniteDuration = 30 seconds
+  def await[A](f: Awaitable[A]): A               = Await.result(f, awaitableTimeout)
 }
