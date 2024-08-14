@@ -17,11 +17,10 @@
 package uk.gov.hmrc.api.client
 
 import akka.actor.ActorSystem
-import play.api.libs.ws.ahc.{AhcConfigBuilder, StandaloneAhcWSClient}
 import play.api.libs.ws.StandaloneWSResponse
-
-import scala.concurrent.{Await, Awaitable}
+import play.api.libs.ws.ahc.{AhcConfigBuilder, StandaloneAhcWSClient}
 import scala.concurrent.duration._
+import scala.concurrent.{Await, Awaitable}
 import scala.language.postfixOps
 
 trait HttpClient {
@@ -42,6 +41,7 @@ trait HttpClient {
       }
     }
   }
+
   protected val awaitableTimeout: FiniteDuration = 30 seconds
   def await[A](f: Awaitable[A]): A               = Await.result(f, awaitableTimeout)
 }

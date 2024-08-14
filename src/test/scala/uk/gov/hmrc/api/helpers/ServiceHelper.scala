@@ -14,13 +14,24 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.api.specs
+package uk.gov.hmrc.api.helpers
 
-import org.scalatest.featurespec.AnyFeatureSpec
-import org.scalatest.matchers.should.Matchers
-import org.scalatest.GivenWhenThen
-import uk.gov.hmrc.api.helpers.ServiceHelper
+import play.api.libs.ws.StandaloneWSResponse
+import uk.gov.hmrc.api.client.HttpClient
+import uk.gov.hmrc.api.conf.TestConfiguration
 
-trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers {
-  val sa_service = new ServiceHelper
+class ServiceHelper extends BaseHelper with HttpClient {
+  private val host  = TestConfiguration.url("sa-sandpit")
+  private val token = "Bearer test"
+
+  def getSALiabilitiesSandpit(nino: String): StandaloneWSResponse =
+    getUrl(
+      s"$host/$nino",
+      Some(
+        Seq(
+          "Content-Type"  -> "application/json",
+          "Authorization" -> token
+        )
+      )
+    )
 }
