@@ -14,6 +14,12 @@
  * limitations under the License.
  */
 
+/*
+pending Work
+-------------
+Update validation for Correlation ID
+
+ */
 package uk.gov.hmrc.api.specs
 
 import uk.gov.hmrc.api.helpers.BaseHelper
@@ -22,17 +28,17 @@ class GetLiabilitiesByNINO extends BaseSpec with BaseHelper {
 
   Feature("Retrieve SA Liabilities details for a valid NINO") {
 
-    val singleLiability   = "AA000000A"
-    val multipleLiability = "AA000000D"
-
     val expectedTypes = Map(
       "totalBalance"     -> "number",
       "pendingDueDate"   -> "string",
       "pendingDueAmount" -> "number",
       "payableAmount"    -> "number",
-      "overdueAmount"    -> "number",
-      "payableDueDate"   -> "string"
+      "payableDueDate"   -> "string",
+      "overdueAmount"    -> "number"
     )
+
+    val singleLiability     = "AA000000A"
+    val multipleLiabilities = "AA000000D"
 
     Scenario("Retrieve liability details for a given valid NINO with single liability") {
       Given("the SA Liabilities sandpit API is up and running")
@@ -40,6 +46,7 @@ class GetLiabilitiesByNINO extends BaseSpec with BaseHelper {
       When(
         "user sends a GET request to retrieve liability details for a valid NINO with single liability"
       )
+      checkNINOFormat(singleLiability)
       lazy val response = sa_service.getSALiabilitiesSandpit(singleLiability)
 
       Then("the response status code should be 200")
@@ -48,16 +55,23 @@ class GetLiabilitiesByNINO extends BaseSpec with BaseHelper {
       And("the response body should have the array with balance details as expected")
 
       val responseBody = response.body
+      println(responseBody)
       checkSALiabilitiesResponse(responseBody, expectedTypes)
+
+      And("response header should consist of correlation ID")
+      //      val correlationID = response.headers.get("CorrelationId")
+      val correlationID = response.headers.get("Content-Type")
+      correlationID should not be empty
     }
 
-    Scenario("Retrieve liability details for a given valid NINO with multiple liability") {
+    Scenario("Retrieve liability details for a given valid NINO with multiple liabilities") {
       Given("the SA Liabilities sandpit API is up and running")
 
       When(
-        "user sends a GET request to retrieve liability details for a valid NINO with multiple liability"
+        "user sends a GET request to retrieve liability details for a valid NINO with single liability"
       )
-      lazy val response = sa_service.getSALiabilitiesSandpit(multipleLiability)
+      checkNINOFormat(multipleLiabilities)
+      lazy val response = sa_service.getSALiabilitiesSandpit(multipleLiabilities)
 
       Then("the response status code should be 200")
       checkResponseStatus(response.status, 200)
@@ -65,7 +79,14 @@ class GetLiabilitiesByNINO extends BaseSpec with BaseHelper {
       And("the response body should have the array with balance details as expected")
 
       val responseBody = response.body
+      println(responseBody)
       checkSALiabilitiesResponse(responseBody, expectedTypes)
+
+      And("response header should consist of correlation ID")
+      //      val correlationID = response.headers.get("CorrelationId")
+      val correlationID = response.headers.get("Content-Type")
+      correlationID should not be empty
     }
   }
+
 }

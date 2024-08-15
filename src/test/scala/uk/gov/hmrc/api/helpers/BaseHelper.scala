@@ -19,12 +19,18 @@ package uk.gov.hmrc.api.helpers
 import play.api.libs.json._
 
 trait BaseHelper {
+  def checkNINOFormat(nino: String): Unit = {
+    val expectedRegex = """^[A-Z]{2}[0-9]{6}[A-Z]{0,1}$""".r
+    val isMatch       = expectedRegex.matches(nino)
+    assert(isMatch)
+  }
+
   def checkResponseStatus(status: Int, expected: Int): Unit =
     assert(status == expected, message = s"Expected a Status of $expected : Actual Status is $status")
 
   def checkSALiabilitiesResponse(response: String, expectedTypes: Map[String, Any]): Unit = {
     val responseBody: JsValue    = Json.parse(response)
-    val balances: List[JsObject] = (responseBody \ "balances").as[List[JsObject]]
+    val balances: List[JsObject] = (responseBody \ "balances").as[List[JsObject]] // Update to balanceDetails
     balances.foreach { balanceItem =>
       expectedTypes.foreach { case (key, expectedType) =>
         val value      = (balanceItem \ key).get

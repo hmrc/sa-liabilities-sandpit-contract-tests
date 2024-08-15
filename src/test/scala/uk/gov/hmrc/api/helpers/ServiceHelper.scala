@@ -21,17 +21,24 @@ import uk.gov.hmrc.api.client.HttpClient
 import uk.gov.hmrc.api.conf.TestConfiguration
 
 class ServiceHelper extends BaseHelper with HttpClient {
-  private val host  = TestConfiguration.url("sa-sandpit")
-  private val token = "Bearer test"
+  private val host          = TestConfiguration.url("sa-sandpit")
+  private val token         = "Bearer test"
+  val toggleStatus: Boolean = sys.props.getOrElse("bearerToken", "false").toBoolean
+
+  val headers: Seq[(String, String)] = if (toggleStatus) {
+    Seq(
+      "Authorization" -> token,
+      "Content-Type"  -> "application/json"
+    )
+  } else {
+    Seq(
+      "Content-Type" -> "application/json"
+    )
+  }
 
   def getSALiabilitiesSandpit(nino: String): StandaloneWSResponse =
     getUrl(
       s"$host/$nino",
-      Some(
-        Seq(
-          "Content-Type"  -> "application/json",
-          "Authorization" -> token
-        )
-      )
+      Some(headers)
     )
 }
