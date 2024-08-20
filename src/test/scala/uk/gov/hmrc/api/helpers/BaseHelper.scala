@@ -30,7 +30,7 @@ trait BaseHelper {
 
   def checkSALiabilitiesResponse(response: String, expectedTypes: Map[String, Any]): Unit = {
     val responseBody: JsValue    = Json.parse(response)
-    val balances: List[JsObject] = (responseBody \ "balances").as[List[JsObject]] // Update to balanceDetails
+    val balances: List[JsObject] = (responseBody \ "balanceDetails").as[List[JsObject]] // Update to balanceDetails
     balances.foreach { balanceItem =>
       expectedTypes.foreach { case (key, expectedType) =>
         val value      = (balanceItem \ key).get
