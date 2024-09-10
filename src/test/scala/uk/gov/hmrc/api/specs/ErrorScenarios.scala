@@ -18,6 +18,7 @@
 1. Check missing NINO count as invalid path parameter
 2. Update validation for errorCode, errorDescription and correlation ID
 3. Add a NINO which doesn't exist in the system
+4. Additional scenarios to be added
  */
 
 package uk.gov.hmrc.api.specs
