@@ -20,8 +20,9 @@ import akka.actor.ActorSystem
 import play.api.libs.ws.StandaloneWSResponse
 import play.api.libs.ws.ahc.{AhcConfigBuilder, StandaloneAhcWSClient}
 import scala.concurrent.duration._
-import scala.concurrent.{Await, Awaitable}
+import scala.concurrent.{Await, Awaitable, Future}
 import scala.language.postfixOps
+import play.api.libs.ws.DefaultBodyWritables.writeableOf_String
 
 trait HttpClient {
 
@@ -40,6 +41,25 @@ trait HttpClient {
         case None    => request.get()
       }
     }
+  }
+
+  def postUrl(
+    url: String,
+    body: String,
+    requestHeaders: Option[Seq[(String, String)]] = None
+  )(implicit client: StandaloneAhcWSClient): StandaloneWSResponse = {
+
+    val request = client.url(url)
+
+    val response = Await.result(
+      requestHeaders match {
+        case Some(h) => request.withHttpHeaders(h: _*).post(body)
+        case None    => request.post(body)
+      },
+      10.seconds
+    )
+
+    response
   }
 
   protected val awaitableTimeout: FiniteDuration = 30 seconds
