@@ -17,29 +17,15 @@
 package uk.gov.hmrc.api.helpers
 
 import org.scalatest.Assertions.fail
-import play.api.libs.ws.StandaloneWSResponse
-import uk.gov.hmrc.api.client.HttpClient
-import uk.gov.hmrc.api.conf.TestConfiguration
 import uk.gov.hmrc.api.service.AuthService
 
-import play.api.libs.ws.ahc.StandaloneAhcWSClient
-import scala.util.Try
+import javax.inject.Inject
 
-class ServiceHelper extends BaseHelper with HttpClient {
+class AuthHelper @Inject() (authService: AuthService) {
 
-  val client: StandaloneAhcWSClient = StandaloneAhcWSClient()
-  val authService                   = new AuthService()
-
-  private val host = TestConfiguration.url("sa-sandpit")
-
-  def getSALiabilitiesSandpit(nino: String, bearerToken: String): StandaloneWSResponse =
-    getUrl(
-      s"$host/$nino",
-      Some(
-        Seq(
-          "Authorization" -> bearerToken,
-          "Accept"        -> "application/vnd.hmrc.1.0+json"
-        )
-      )
-    )
+  def getAuthBearerToken(nino: String, utr: String, credID: String): String =
+    authService
+      .postLogin(nino, utr, credID)
+      .header("Authorization")
+      .getOrElse(fail("Could not obtain auth bearer token"))
 }

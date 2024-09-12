@@ -28,32 +28,35 @@ import scala.concurrent.duration.*
 
 class AuthService extends HttpClient {
   val host: String = TestConfiguration.url("auth")
-  println(host)
 
-  def authPayload: String =
+  def authPayload(NINO: String, UTR: String, CREDID: String): String =
     s"""
        |{
-       |  "credId": "${UUID.randomUUID()}",
+       |  "credId": "$CREDID",
        |  "affinityGroup": "Individual",
        |  "confidenceLevel": 50,
        |  "credentialStrength": "strong",
-       |  "nino" : "AA000000C",
+       |  "nino" : "$NINO",
        |  "enrolments": [
        |    {
        |      "key": "IR-SA",
        |      "identifiers": [
        |        {
        |          "key": "UTR",
-       |          "value": "9555543210"
+       |          "value": "$UTR"
        |        }
        |      ],
        |      "state": "Activated"
        |    }
        |  ]
        |}
-     """.stripMargin
+       """.stripMargin
 
-  def postLogin(): StandaloneWSResponse =
-    postUrl(s"$host/government-gateway/session/login", authPayload, Some(Seq("Content-Type" -> "application/json")))
+  def postLogin(nino: String, utr: String, credID: String): StandaloneWSResponse =
+    postUrl(
+      s"$host/government-gateway/session/login",
+      authPayload(nino, utr, credID),
+      Some(Seq("Content-Type" -> "application/json"))
+    )
 
 }
