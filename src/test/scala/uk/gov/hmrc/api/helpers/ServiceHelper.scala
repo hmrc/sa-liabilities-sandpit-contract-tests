@@ -16,29 +16,30 @@
 
 package uk.gov.hmrc.api.helpers
 
+import org.scalatest.Assertions.fail
 import play.api.libs.ws.StandaloneWSResponse
 import uk.gov.hmrc.api.client.HttpClient
 import uk.gov.hmrc.api.conf.TestConfiguration
+import uk.gov.hmrc.api.service.AuthService
+
+import play.api.libs.ws.ahc.StandaloneAhcWSClient
+import scala.util.Try
 
 class ServiceHelper extends BaseHelper with HttpClient {
-  private val host          = TestConfiguration.url("sa-sandpit")
-  private val token         = "Bearer test"
-  val toggleStatus: Boolean = sys.props.getOrElse("bearerToken", "false").toBoolean
 
-  val headers: Seq[(String, String)] = if (toggleStatus) {
-    Seq(
-      "Authorization" -> token,
-      "Content-Type"  -> "application/json"
-    )
-  } else {
-    Seq(
-      "Content-Type" -> "application/json"
-    )
-  }
+  val client: StandaloneAhcWSClient = StandaloneAhcWSClient()
+  val authService                   = new AuthService()
 
-  def getSALiabilitiesSandpit(nino: String): StandaloneWSResponse =
+  private val host = TestConfiguration.url("sa-sandpit")
+
+  def getSALiabilitiesSandpit(nino: String, bearerToken: String): StandaloneWSResponse =
     getUrl(
       s"$host/$nino",
-      Some(headers)
+      Some(
+        Seq(
+          "Authorization" -> s"Bearer $bearerToken",
+          "Accept"        -> "application/vnd.hmrc.1.0+json"
+        )
+      )
     )
 }

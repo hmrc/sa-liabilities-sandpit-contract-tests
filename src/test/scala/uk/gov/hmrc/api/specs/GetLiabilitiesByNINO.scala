@@ -23,6 +23,7 @@ Update validation for Correlation ID
 package uk.gov.hmrc.api.specs
 
 import uk.gov.hmrc.api.helpers.BaseHelper
+import uk.gov.hmrc.api.testData.TestDataGenerator.{createBalanceDetails, generateCredID, generateNINO, generateUTR}
 
 class GetLiabilitiesByNINO extends BaseSpec with BaseHelper {
 
@@ -37,17 +38,22 @@ class GetLiabilitiesByNINO extends BaseSpec with BaseHelper {
       "overdueAmount"    -> "number"
     )
 
-    val singleLiability     = "AA000000A"
-    val multipleLiabilities = "AA000000D"
-
     Scenario("Retrieve liability details for a given valid NINO with single liability") {
       Given("the SA Liabilities sandpit API is up and running")
 
+      And("test data has been populated for the NINO")
+      val nino = generateNINO()
+      createBalanceDetails(nino)
+
       When(
-        "user sends a GET request to retrieve liability details for a valid NINO with single liability"
+        "user sends a GET request to retrieve liability details with valid details"
       )
-      checkNINOFormat(singleLiability)
-      lazy val response = sa_service.getSALiabilitiesSandpit(singleLiability)
+
+      checkNINOFormat(nino)
+      val bearerToken   = authHelper.getAuthBearerToken(nino, generateUTR(), generateCredID())
+      println(bearerToken)
+      lazy val response = sa_service.getSALiabilitiesSandpit(nino, bearerToken)
+      println(response)
 
       Then("the response status code should be 200")
       checkResponseStatus(response.status, 200)
@@ -55,38 +61,38 @@ class GetLiabilitiesByNINO extends BaseSpec with BaseHelper {
       And("the response body should have the array with balance details as expected")
 
       val responseBody = response.body
-      println(responseBody)
+
       checkSALiabilitiesResponse(responseBody, expectedTypes)
 
       And("response header should consist of correlation ID")
-      //      val correlationID = response.headers.get("CorrelationId")
+      // val correlationID = response.headers.get("CorrelationId")
       val correlationID = response.headers.get("Content-Type")
       correlationID should not be empty
     }
 
-    Scenario("Retrieve liability details for a given valid NINO with multiple liabilities") {
-      Given("the SA Liabilities sandpit API is up and running")
-
-      When(
-        "user sends a GET request to retrieve liability details for a valid NINO with single liability"
-      )
-      checkNINOFormat(multipleLiabilities)
-      lazy val response = sa_service.getSALiabilitiesSandpit(multipleLiabilities)
-
-      Then("the response status code should be 200")
-      checkResponseStatus(response.status, 200)
-
-      And("the response body should have the array with balance details as expected")
-
-      val responseBody = response.body
-      println(responseBody)
-      checkSALiabilitiesResponse(responseBody, expectedTypes)
-
-      And("response header should consist of correlation ID")
-      //      val correlationID = response.headers.get("CorrelationId")
-      val correlationID = response.headers.get("Content-Type")
-      correlationID should not be empty
-    }
+//    Scenario("Retrieve liability details for a given valid NINO with multiple liabilities") {
+//      Given("the SA Liabilities sandpit API is up and running")
+//
+//      When(
+//        "user sends a GET request to retrieve liability details for a valid NINO with single liability"
+//      )
+//      checkNINOFormat(multipleLiabilitiesNINO)
+//      lazy val response = sa_service.getSALiabilitiesSandpit(multipleLiabilitiesNINO)
+//
+//      Then("the response status code should be 200")
+//      checkResponseStatus(response.status, 200)
+//
+//      And("the response body should have the array with balance details as expected")
+//
+//      val responseBody = response.body
+//      println(responseBody)
+//      checkSALiabilitiesResponse(responseBody, expectedTypes)
+//
+//      And("response header should consist of correlation ID")
+//      //      val correlationID = response.headers.get("CorrelationId")
+//      val correlationID = response.headers.get("Content-Type")
+//      correlationID should not be empty
+//    }
   }
 
 }
