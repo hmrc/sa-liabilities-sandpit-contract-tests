@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 /*
 1. Check missing NINO count as invalid path parameter
 2. Update validation for errorCode, errorDescription and correlation ID
@@ -24,16 +23,14 @@
 
 package uk.gov.hmrc.api.specs
 
-import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.api.helpers.BaseHelper
 
 class ErrorScenarios extends BaseSpec with BaseHelper {
 
   Feature("Validate Error Scenarios") {
-    val invalidNINOFormat: String = "invalid"
-    val specialCharInNINO: String = "AA000000A:"
-    val NonExistentNINO           = "AB000000A"
-
+    // val invalidNINOFormat: String = "invalid"
+    // val specialCharInNINO: String = "AA000000A:"
+    val NonExistentNINO = "AB000000A"
 
     Scenario("Validation of error code and error description for NINO with invalid format") {
       Given("the SA Liabilities sandpit API is up and running")

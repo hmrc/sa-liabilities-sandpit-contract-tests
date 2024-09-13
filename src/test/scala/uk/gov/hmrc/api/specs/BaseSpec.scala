@@ -22,9 +22,6 @@ import org.scalatest.GivenWhenThen
 import uk.gov.hmrc.api.helpers.{AuthHelper, ServiceHelper}
 import uk.gov.hmrc.api.service.AuthService
 
-import java.util.UUID
-import scala.util.Random
-
 trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers {
   val sa_service      = new ServiceHelper
   lazy val authHelper = new AuthHelper(new AuthService)

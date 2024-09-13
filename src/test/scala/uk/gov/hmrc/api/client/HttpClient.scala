@@ -19,10 +19,13 @@ package uk.gov.hmrc.api.client
 import akka.actor.ActorSystem
 import play.api.libs.ws.StandaloneWSResponse
 import play.api.libs.ws.ahc.{AhcConfigBuilder, StandaloneAhcWSClient}
-import scala.concurrent.duration._
+
+import scala.concurrent.duration.*
 import scala.concurrent.{Await, Awaitable}
 import scala.language.postfixOps
 import play.api.libs.ws.DefaultBodyWritables.writeableOf_String
+
+import scala.annotation.tailrec
 
 trait HttpClient {
 
@@ -30,18 +33,36 @@ trait HttpClient {
   implicit val system: ActorSystem             = ActorSystem()
   implicit val wsClient: StandaloneAhcWSClient = StandaloneAhcWSClient()
 
+  val delayBetweenRetries: FiniteDuration = 10.seconds
+  val maxRetries: Int                     = 3
+
   def getUrl(url: String, requestHeaders: Option[Seq[(String, String)]] = None)(implicit
     client: StandaloneAhcWSClient
   ): StandaloneWSResponse = {
-    val request = client.url(url)
-    await {
-      Thread.sleep(500)
-      println(s"GET $url\nHeaders:$requestHeaders")
-      requestHeaders match {
+
+    @tailrec
+    def makeRequest(attempt: Int): StandaloneWSResponse = {
+      val request = client.url(url)
+      println(s"GET $url (Attempt: $attempt)\nHeaders: $requestHeaders")
+
+      val response = requestHeaders match {
         case Some(h) => request.withHttpHeaders(h: _*).get()
         case None    => request.get()
       }
+
+      val result = Await.result(response, delayBetweenRetries)
+      println(s"Response status: ${result.status}")
+      println(s"Response body: ${result.body}")
+
+      if (result.status == 500 & attempt < maxRetries) {
+        println(s"Received 500 error,  retrying (Attempt $attempt of $maxRetries)")
+        Thread.sleep(delayBetweenRetries.toMillis)
+        makeRequest(attempt + 1)
+      } else {
+        result
+      }
     }
+    makeRequest(1)
   }
 
   def postUrl(
@@ -50,17 +71,30 @@ trait HttpClient {
     requestHeaders: Option[Seq[(String, String)]] = None
   )(implicit client: StandaloneAhcWSClient): StandaloneWSResponse = {
 
-    val request = client.url(url)
+    @tailrec
+    def makeRequest(attempt: Int): StandaloneWSResponse = {
+      val request = client.url(url)
+      println(s"GET $url (Attempt: $attempt)\nHeaders: $requestHeaders")
 
-    val response = Await.result(
-      requestHeaders match {
+      val response = requestHeaders match {
         case Some(h) => request.withHttpHeaders(h: _*).post(body)
         case None    => request.post(body)
-      },
-      10.seconds
-    )
+      }
 
-    response
+      val result = Await.result(response, 10.seconds)
+      println(s"Response status: ${result.status}")
+      println(s"Response body: ${result.body}")
+      if (result.status == 500 & attempt < maxRetries) {
+        println(s"Received 500 error,  retrying (Attempt $attempt of $maxRetries)")
+        Thread.sleep(delayBetweenRetries.toMillis)
+        makeRequest(attempt + 1)
+      } else {
+        result
+      }
+    }
+
+    makeRequest(1)
+
   }
 
   protected val awaitableTimeout: FiniteDuration = 30 seconds
