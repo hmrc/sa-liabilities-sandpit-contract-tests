@@ -27,5 +27,17 @@ class AuthHelper @Inject() (authService: AuthService) {
     authService
       .postLogin(nino, utr, credID)
       .header("Authorization")
-      .getOrElse(fail("Could not obtain auth bearer token"))
+      .flatMap { authHeader =>
+        val tokenPattern = "(?i).*Bearer\\s+(.+)".r
+        authHeader match {
+          case tokenPattern(token) => Some(token.trim)
+          case _                   =>
+            println(s"Unexpected Authorization format: $authHeader")
+            None
+        }
+      }
+      .getOrElse {
+        println(s"Attempted to create bearer token with NIN0: $nino, UTR: $utr, CredID: $credID")
+        fail("Could not obtain auth bearer token")
+      }
 }

@@ -23,12 +23,9 @@ Update validation for Correlation ID
 package uk.gov.hmrc.api.specs
 
 import uk.gov.hmrc.api.helpers.BaseHelper
-//import uk.gov.hmrc.api.helpers.testDataLoader
-//import uk.gov.hmrc.api.helpers.TestData
+import uk.gov.hmrc.api.testData.TestDataGenerator.{createBalanceDetails, generateCredID, generateNINO, generateUTR}
 
 class GetLiabilitiesByNINO extends BaseSpec with BaseHelper {
-
-//  val testData: Map[String, TestData] = testDataLoader.loadData()
 
   Feature("Retrieve SA Liabilities details for a valid NINO") {
 
@@ -45,14 +42,18 @@ class GetLiabilitiesByNINO extends BaseSpec with BaseHelper {
       Given("the SA Liabilities sandpit API is up and running")
 
       And("test data has been populated for the NINO")
+      val nino = generateNINO()
+      createBalanceDetails(nino)
 
       When(
         "user sends a GET request to retrieve liability details with valid details"
       )
-//      val data          = testData("P001")
+
       checkNINOFormat(nino)
-      val bearerToken   = authHelper.getAuthBearerToken(nino, utr, credID)
+      val bearerToken   = authHelper.getAuthBearerToken(nino, generateUTR(), generateCredID())
+      println(bearerToken)
       lazy val response = sa_service.getSALiabilitiesSandpit(nino, bearerToken)
+      println(response)
 
       Then("the response status code should be 200")
       checkResponseStatus(response.status, 200)
@@ -60,11 +61,11 @@ class GetLiabilitiesByNINO extends BaseSpec with BaseHelper {
       And("the response body should have the array with balance details as expected")
 
       val responseBody = response.body
-      println(responseBody)
+
       checkSALiabilitiesResponse(responseBody, expectedTypes)
 
       And("response header should consist of correlation ID")
-      //      val correlationID = response.headers.get("CorrelationId")
+      // val correlationID = response.headers.get("CorrelationId")
       val correlationID = response.headers.get("Content-Type")
       correlationID should not be empty
     }
