@@ -40,7 +40,7 @@ object TestDataGenerator extends HttpClient {
   def generateCredID(): String =
     (1 to 16).map(_ => random.nextInt(10)).mkString
 
-  def createBalanceDetails(nino: String): Future[Unit] = {
+  def createBalanceDetails(nino: String, bearerToken: String): Future[Unit] = {
     val url = s"http://localhost:9900/balance/$nino"
 
     Future {
@@ -49,8 +49,9 @@ object TestDataGenerator extends HttpClient {
         "",
         Some(
           Seq(
+            "Authorization"             -> s"Bearer $bearerToken",
             "Accept"                    -> "application/vnd.hmrc.1.0+json",
-            "X-USE-STRATEGY-GENERATION" -> "faker"
+            "X-USE-STRATEGY-GENERATION" -> "randomize"
           )
         )
       )
