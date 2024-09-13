@@ -16,15 +16,9 @@
 
 package uk.gov.hmrc.api.service
 
-import play.api.libs.ws.{StandaloneWSRequest, StandaloneWSResponse}
-import play.libs.ws.ahc.StandaloneAhcWSClient
+import play.api.libs.ws.StandaloneWSResponse
 import uk.gov.hmrc.api.client.HttpClient
 import uk.gov.hmrc.api.conf.TestConfiguration
-
-import java.util.UUID
-import javax.inject.Inject
-import scala.concurrent.Await
-import scala.concurrent.duration.*
 
 class AuthService extends HttpClient {
   val host: String = TestConfiguration.url("auth")

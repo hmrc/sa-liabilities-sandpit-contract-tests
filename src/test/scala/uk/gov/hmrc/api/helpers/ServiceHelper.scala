@@ -16,14 +16,12 @@
 
 package uk.gov.hmrc.api.helpers
 
-import org.scalatest.Assertions.fail
 import play.api.libs.ws.StandaloneWSResponse
 import uk.gov.hmrc.api.client.HttpClient
 import uk.gov.hmrc.api.conf.TestConfiguration
 import uk.gov.hmrc.api.service.AuthService
 
 import play.api.libs.ws.ahc.StandaloneAhcWSClient
-import scala.util.Try
 
 class ServiceHelper extends BaseHelper with HttpClient {
 
