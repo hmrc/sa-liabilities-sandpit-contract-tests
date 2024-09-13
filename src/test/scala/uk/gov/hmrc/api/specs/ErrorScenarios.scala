@@ -48,6 +48,7 @@ class ErrorScenarios extends BaseSpec with BaseHelper {
     val specialCharInNINO: String = "AA000000A:"
     val NonExistentNINO           = "AB000000A"
 
+
     Scenario("Validation of error code and error description for NINO with invalid format") {
       Given("the SA Liabilities sandpit API is up and running")
 
