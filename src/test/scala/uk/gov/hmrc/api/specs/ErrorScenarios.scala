@@ -29,7 +29,7 @@ class ErrorScenarios extends BaseSpec with BaseHelper {
       Given("the SA Liabilities sandpit API is up and running")
 
       When("user has created a bearer token for a valid nino")
-      val nino = generateNINO()
+      val nino        = generateNINO()
       checkNINOFormat(nino)
       val bearerToken = authHelper.getAuthBearerToken(nino, generateUTR(), generateCredID())
 
@@ -46,15 +46,14 @@ class ErrorScenarios extends BaseSpec with BaseHelper {
       println(responseBody)
 
       val responseBodyJs: JsValue = Json.parse(responseBody)
-      val errorCode = (responseBodyJs \ "errorCode").asOpt[String]
-      val errorDescription = (responseBodyJs \ "errorDescription").asOpt[String]
+      val errorCode               = (responseBodyJs \ "errorCode").asOpt[String]
+      val errorDescription        = (responseBodyJs \ "errorDescription").asOpt[String]
 
       Then("the error response should be 400")
       checkResponseStatus(response.status, 400)
 
       And("the errorCode should be set to 1113")
       errorCode shouldBe Some("1113")
-
 
       And("the errorDescription should be set to Invalid path parameters")
       errorDescription shouldBe Some("Invalid path parameters")
@@ -65,12 +64,11 @@ class ErrorScenarios extends BaseSpec with BaseHelper {
 
     }
 
-
     Scenario("Validation of error code and error description for non-existent NINO") {
       Given("the SA Liabilities sandpit API is up and running")
 
       When("user has created a bearer token for a valid nino")
-      val nino = generateNINO()
+      val nino        = generateNINO()
       checkNINOFormat(nino)
       val bearerToken = authHelper.getAuthBearerToken(nino, generateUTR(), generateCredID())
 
@@ -82,15 +80,14 @@ class ErrorScenarios extends BaseSpec with BaseHelper {
       println(responseBody)
 
       val responseBodyJs: JsValue = Json.parse(responseBody)
-      val errorCode = (responseBodyJs \ "errorCode").asOpt[String]
-      val errorDescription = (responseBodyJs \ "errorDescription").asOpt[String]
+      val errorCode               = (responseBodyJs \ "errorCode").asOpt[String]
+      val errorDescription        = (responseBodyJs \ "errorDescription").asOpt[String]
 
       Then("the error response should be 400")
       checkResponseStatus(response.status, 400)
 
       And("the errorCode should be set to 1113")
       errorCode shouldBe Some("1002")
-
 
       And("the errorDescription should be set to Invalid path parameters")
       errorDescription shouldBe Some("NINO not found")
