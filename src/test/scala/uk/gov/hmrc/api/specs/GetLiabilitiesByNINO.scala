@@ -14,12 +14,6 @@
  * limitations under the License.
  */
 
-/*
-pending Work
--------------
-Update validation for Correlation ID
-
- */
 package uk.gov.hmrc.api.specs
 
 import uk.gov.hmrc.api.helpers.BaseHelper
