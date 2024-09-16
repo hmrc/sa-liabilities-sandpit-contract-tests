@@ -23,81 +23,89 @@
 
 package uk.gov.hmrc.api.specs
 
+import play.api.libs.json.*
+import play.api.libs.ws.StandaloneWSResponse
 import uk.gov.hmrc.api.helpers.BaseHelper
+import uk.gov.hmrc.api.testData.TestDataGenerator.{createBalanceDetails, generateCredID, generateNINO, generateUTR}
 
 class ErrorScenarios extends BaseSpec with BaseHelper {
 
   Feature("Validate Error Scenarios") {
-    // val invalidNINOFormat: String = "invalid"
-    // val specialCharInNINO: String = "AA000000A:"
-    val NonExistentNINO = "AB000000A"
 
     Scenario("Validation of error code and error description for NINO with invalid format") {
       Given("the SA Liabilities sandpit API is up and running")
 
-      And(s"user sends a GET request to retrieve liability details for a NINO wih invalid format")
-      // lazy val response = sa_service.getSALiabilitiesSandpit(invalidNINOFormat)
+      When("user has created a bearer token for a valid nino")
+      val nino = generateNINO()
+      checkNINOFormat(nino)
+      val bearerToken = authHelper.getAuthBearerToken(nino, generateUTR(), generateCredID())
+
+      And("test data has been populated for the NINO")
+      createBalanceDetails(nino, bearerToken)
+
+      When(
+        "user sends a GET request to retrieve liability details with valid details"
+      )
+      val response: StandaloneWSResponse = sa_service.getSALiabilitiesSandpit(s"$nino:", bearerToken)
+      println(response)
+
+      val responseBody: String = response.body
+      println(responseBody)
+
+      val responseBodyJs: JsValue = Json.parse(responseBody)
+      val errorCode = (responseBodyJs \ "errorCode").asOpt[String]
+      val errorDescription = (responseBodyJs \ "errorDescription").asOpt[String]
 
       Then("the error response should be 400")
-      // checkResponseStatus(response.status, 400)
+      checkResponseStatus(response.status, 400)
 
       And("the errorCode should be set to 1113")
-      // val responseBody: JsValue = Json.parse(response.body)
-      // (responseBody \ "errorCode").as[String] shouldEqual "1113"
+      errorCode shouldBe Some("1113")
+
 
       And("the errorDescription should be set to Invalid path parameters")
-      // (responseBody \ "errorDescription").as[String] shouldEqual "Invalid NINO format" // Invalid path parameters
-
-      // And("response header should consist of correlation ID")
-//    val correlationID = response.headers.get("CorrelationId")
-      // val correlationID = response.headers.get("Content-Type")
-      // correlationID should not be empty
-
-    }
-    Scenario("Validation of error code and error description for NINO with special character") {
-      Given("the SA Liabilities sandpit API is up and running")
-
-      And(s"user sends a GET request to retrieve liability details for a NINO with special character")
-      // lazy val response = sa_service.getSALiabilitiesSandpit(specialCharInNINO)
-
-      Then("the error response should be 400")
-      // checkResponseStatus(response.status, 400)
-
-      And("the errorCode should be set to 1113")
-      // val responseBody: JsValue = Json.parse(response.body)
-      // (responseBody \ "errorCode").as[String] shouldEqual "1113"
-
-      And("the errorDescription should be set to Invalid path parameters")
-      // (responseBody \ "errorDescription").as[String] shouldEqual "Invalid NINO format" // Invalid path parameters
+      errorDescription shouldBe Some("Invalid path parameters")
 
       And("response header should consist of correlation ID")
-      //    val correlationID = response.headers.get("CorrelationId")
-      // val correlationID = response.headers.get("Content-Type")
-      // correlationID should not be empty
+      val correlationID = response.headers.get("CorrelationId")
+      correlationID should not be empty
 
     }
+
 
     Scenario("Validation of error code and error description for non-existent NINO") {
       Given("the SA Liabilities sandpit API is up and running")
 
+      When("user has created a bearer token for a valid nino")
+      val nino = generateNINO()
+      checkNINOFormat(nino)
+      val bearerToken = authHelper.getAuthBearerToken(nino, generateUTR(), generateCredID())
+
       When("user sends a GET request to retrieve liability details for a non-existent NINO")
-      checkNINOFormat(NonExistentNINO)
-      // lazy val response = sa_service.getSALiabilitiesSandpit(NonExistentNINO)
+      val response: StandaloneWSResponse = sa_service.getSALiabilitiesSandpit(nino, bearerToken)
+      println(response)
+
+      val responseBody: String = response.body
+      println(responseBody)
+
+      val responseBodyJs: JsValue = Json.parse(responseBody)
+      val errorCode = (responseBodyJs \ "errorCode").asOpt[String]
+      val errorDescription = (responseBodyJs \ "errorDescription").asOpt[String]
 
       Then("the error response should be 400")
-      // checkResponseStatus(response.status, 400)
+      checkResponseStatus(response.status, 400)
 
       And("the errorCode should be set to 1113")
-      // val responseBody: JsValue = Json.parse(response.body)
-      // (responseBody \ "errorCode").as[String] shouldEqual "1002"
+      errorCode shouldBe Some("1002")
+
 
       And("the errorDescription should be set to Invalid path parameters")
-      // (responseBody \ "errorDescription").as[String] shouldEqual "NINO not found"
+      errorDescription shouldBe Some("NINO not found")
 
       And("response header should consist of correlation ID")
-      //      val correlationID = response.headers.get("CorrelationId")
-      // val correlationID = response.headers.get("Content-Type")
-      // correlationID should not be empty
+      val correlationID = response.headers.get("CorrelationId")
+      println(correlationID)
+      correlationID should not be empty
     }
 
   }
