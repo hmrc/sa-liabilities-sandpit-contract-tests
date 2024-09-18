@@ -35,7 +35,7 @@ class ServiceHelper extends BaseHelper with HttpClient {
       s"$host/$nino",
       Some(
         Seq(
-          "Authorization" -> s"Bearer $bearerToken",
+          "Authorization" -> bearerToken,
           "Accept"        -> "application/vnd.hmrc.1.0+json"
         )
       )

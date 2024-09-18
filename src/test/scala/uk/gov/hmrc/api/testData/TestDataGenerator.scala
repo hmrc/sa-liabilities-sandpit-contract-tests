@@ -16,7 +16,9 @@
 
 package uk.gov.hmrc.api.testData
 
+import play.api.libs.json.JsValue
 import uk.gov.hmrc.api.client.HttpClient
+
 import scala.util.Random
 import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -40,7 +42,7 @@ object TestDataGenerator extends HttpClient {
   def generateCredID(): String =
     (1 to 16).map(_ => random.nextInt(10)).mkString
 
-  def createBalanceDetails(nino: String, bearerToken: String): Future[Unit] = {
+  def createBalanceDetailsAllFields(nino: String): Future[Unit] = {
     val url = s"http://localhost:9900/balance/$nino"
 
     Future {
@@ -49,9 +51,33 @@ object TestDataGenerator extends HttpClient {
         "",
         Some(
           Seq(
-            "Authorization"             -> s"Bearer $bearerToken",
             "Accept"                    -> "application/vnd.hmrc.1.0+json",
             "X-USE-STRATEGY-GENERATION" -> "randomize"
+          )
+        )
+      )
+      if (response.status == 201 && response.body.contains("Balance updated successfully")) {
+        println(s"Test data created for $nino successfully.")
+      } else {
+        println(s"Test data creation failed with status: ${response.status}, Body: ${response.body}")
+      }
+    }
+
+  }
+
+  def createBalanceDetailsMandatoryOnly(nino: String, reqPayload: JsValue): Future[Unit] = {
+    val url = s"http://localhost:9900/balance/$nino"
+
+    Future {
+      val jsonString = reqPayload.toString()
+      val response   = putUrl(
+        url,
+        jsonString,
+        Some(
+          Seq(
+            "Accept"                    -> "application/vnd.hmrc.1.0+json",
+            "X-USE-STRATEGY-GENERATION" -> "randomize",
+            "Content-Type"              -> "application/json"
           )
         )
       )
