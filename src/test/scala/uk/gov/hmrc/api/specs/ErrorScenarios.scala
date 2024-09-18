@@ -56,7 +56,7 @@ class ErrorScenarios extends BaseSpec with BaseHelper {
 
       And("response header should consist of correlation ID")
       val correlationID = response.headers.get("CorrelationId")
-      // correlationID should not be empty
+      correlationID should not be empty
 
     }
 
@@ -90,7 +90,6 @@ class ErrorScenarios extends BaseSpec with BaseHelper {
 
       And("response header should consist of correlation ID")
       val correlationID = response.headers.get("CorrelationId")
-      println(correlationID)
       correlationID should not be empty
     }
 
@@ -132,17 +131,17 @@ class ErrorScenarios extends BaseSpec with BaseHelper {
       (responseBodyJs \ "message").as[String] shouldEqual "Invalid bearer token"
     }
 
-    Scenario("Validation of error response for expired bearer token") {}
+    Scenario("Validation of error response for expired bearer token")(pending)
 
-    Scenario("Validation of error response for missing mandatory fields") {}
+    Scenario("Validation of error response for missing mandatory fields")(pending)
 
-    Scenario("Validation of error response for invalid data types") {}
+    Scenario("Validation of error response for invalid data types")(pending)
 
-    Scenario("Validation of error response for empty mandatory fields") {}
+    Scenario("Validation of error response for empty mandatory fields")(pending)
 
-    Scenario("Validation of error response for empty optional fields") {}
+    Scenario("Validation of error response for empty optional fields")(pending)
 
-    Scenario("Validation of error response for additional fields in response") {}
+    Scenario("Validation of error response for additional fields in response")(pending)
 
   }
 }

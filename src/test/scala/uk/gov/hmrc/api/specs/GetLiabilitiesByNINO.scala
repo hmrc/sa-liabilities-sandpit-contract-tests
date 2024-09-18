@@ -18,7 +18,6 @@ package uk.gov.hmrc.api.specs
 
 import uk.gov.hmrc.api.helpers.BaseHelper
 import uk.gov.hmrc.api.testData.TestDataGenerator._
-import play.api.libs.json._
 
 class GetLiabilitiesByNINO extends BaseSpec with BaseHelper {
 
@@ -89,7 +88,7 @@ class GetLiabilitiesByNINO extends BaseSpec with BaseHelper {
 
     Scenario(
       "Retrieve liability details for a given valid NINO with multiple liabilities"
-    ) {}
+    )(pending)
 
   }
 
