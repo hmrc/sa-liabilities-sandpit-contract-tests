@@ -131,6 +131,25 @@ class ErrorScenarios extends BaseSpec with BaseHelper {
       (responseBodyJs \ "message").as[String] shouldEqual "Invalid bearer token"
     }
 
+    Scenario("Validation of error response for empty bearer token") {
+      Given("the SA Liabilities sandpit API is up and running")
+
+      When("user has created a bearer token for a valid nino")
+      val nino = generateNINO()
+      checkNINOFormat(nino)
+
+      When("user sends a GET request to retrieve liability details with invalid format for bearer token")
+      val response: StandaloneWSResponse = sa_service.getSALiabilitiesSandpit(nino, s"")
+      println(response)
+
+      Then("the error response should be 401")
+      checkResponseStatus(response.status, 401)
+
+      And("the error message should be Unauthorized")
+      val responseBodyJs = Json.parse(response.body)
+      (responseBodyJs \ "message").as[String] shouldEqual "Invalid bearer token"
+    }
+
     Scenario("Validation of error response for expired bearer token")(pending)
 
     Scenario("Validation of error response for missing mandatory fields")(pending)

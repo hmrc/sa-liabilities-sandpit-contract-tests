@@ -18,6 +18,7 @@ package uk.gov.hmrc.api.specs
 
 import uk.gov.hmrc.api.helpers.BaseHelper
 import uk.gov.hmrc.api.testData.TestDataGenerator._
+import play.api.libs.json._
 
 class GetLiabilitiesByNINO extends BaseSpec with BaseHelper {
 
@@ -51,9 +52,10 @@ class GetLiabilitiesByNINO extends BaseSpec with BaseHelper {
 
     }
 
-    /*Scenario(
+    Scenario(
       "Retrieve liability details for a given valid NINO with single liability and only mandatory fields"
     ) {
+      pending
       Given("the SA Liabilities sandpit API is up and running")
 
       When("user has created a bearer token for a valid nino")
@@ -83,8 +85,6 @@ class GetLiabilitiesByNINO extends BaseSpec with BaseHelper {
       val responseBody = response.body
       checkSALiabilitiesResponse(responseBody, false)
     }
-
-     */
 
     Scenario(
       "Retrieve liability details for a given valid NINO with multiple liabilities"
