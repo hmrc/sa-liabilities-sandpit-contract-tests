@@ -85,7 +85,7 @@ class GetLiabilitiesByNINO extends BaseSpec with BaseHelper {
 
       And("the response body should have the array with balance details as expected including all optional fields")
       val responseBody = response.body
-      checkSALiabilitiesResponse(responseBody, false)
+      checkSALiabilitiesResponse(responseBody)
     }
 
     Scenario(
