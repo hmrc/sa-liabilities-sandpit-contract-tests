@@ -46,7 +46,9 @@ class GetLiabilitiesByNINO extends BaseSpec with BaseHelper {
       Then("the response status code should be 200")
       checkResponseStatus(response.status, 200)
 
-      And("the response body should have the array with balance details as expected including all optional fields")
+      And(
+        "the response body should have the array with balance details as expected including all mandatory & optional fields"
+      )
       val responseBody = response.body
       checkSALiabilitiesResponse(responseBody, true)
 
