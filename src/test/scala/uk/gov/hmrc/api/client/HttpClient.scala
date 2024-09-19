@@ -33,7 +33,7 @@ trait HttpClient {
   implicit val system: ActorSystem             = ActorSystem()
   implicit val wsClient: StandaloneAhcWSClient = StandaloneAhcWSClient()
 
-  val delayBetweenRetries: FiniteDuration = 10.seconds
+  val delayBetweenRetries: FiniteDuration = 12.seconds
   val maxRetries: Int                     = 3
 
   def getUrl(url: String, requestHeaders: Option[Seq[(String, String)]] = None)(implicit
@@ -81,7 +81,39 @@ trait HttpClient {
         case None    => request.post(body)
       }
 
-      val result = Await.result(response, 10.seconds)
+      val result = Await.result(response, 12.seconds)
+      println(s"Response status: ${result.status}")
+      println(s"Response body: ${result.body}")
+      if (result.status == 500 & attempt < maxRetries) {
+        println(s"Received 500 error,  retrying (Attempt $attempt of $maxRetries)")
+        Thread.sleep(delayBetweenRetries.toMillis)
+        makeRequest(attempt + 1)
+      } else {
+        result
+      }
+    }
+
+    makeRequest(1)
+
+  }
+
+  def putUrl(
+    url: String,
+    body: String,
+    requestHeaders: Option[Seq[(String, String)]] = None
+  )(implicit client: StandaloneAhcWSClient): StandaloneWSResponse = {
+
+    @tailrec
+    def makeRequest(attempt: Int): StandaloneWSResponse = {
+      val request = client.url(url)
+      println(s"GET $url (Attempt: $attempt)\nHeaders: $requestHeaders")
+
+      val response = requestHeaders match {
+        case Some(h) => request.withHttpHeaders(h: _*).put(body)
+        case None    => request.put(body)
+      }
+
+      val result = Await.result(response, 12.seconds)
       println(s"Response status: ${result.status}")
       println(s"Response body: ${result.body}")
       if (result.status == 500 & attempt < maxRetries) {

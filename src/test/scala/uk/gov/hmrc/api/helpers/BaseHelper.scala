@@ -19,6 +19,25 @@ package uk.gov.hmrc.api.helpers
 import play.api.libs.json._
 
 trait BaseHelper {
+  val expectedTypes: Map[String, String] = Map(
+    "totalBalance"     -> "number",
+    "pendingDueDate"   -> "string",
+    "pendingDueAmount" -> "number",
+    "payableAmount"    -> "number",
+    "payableDueDate"   -> "string",
+    "overdueAmount"    -> "number"
+  )
+
+  val mandatoryFields: Set[String] = Set("pendingDueAmount", "payableAmount", "overdueAmount")
+
+  def isValidNumberFormat(value: BigDecimal): Boolean =
+    value >= BigDecimal("-99999999999.99") && value <= BigDecimal("99999999999.99") && value.scale <= 3
+
+  def isValidStringFormat(value: String): Boolean = {
+    val dateRegex = """\d{4}-\d{2}-\d{2}""".r
+    dateRegex.matches(value)
+  }
+
   def checkNINOFormat(nino: String): Unit = {
     val expectedRegex = """^[A-Z]{2}[0-9]{6}[A-Z]{0,1}$""".r
     val isMatch       = expectedRegex.matches(nino)
@@ -28,18 +47,40 @@ trait BaseHelper {
   def checkResponseStatus(status: Int, expected: Int): Unit =
     assert(status == expected, message = s"Expected a Status of $expected : Actual Status is $status")
 
-  def checkSALiabilitiesResponse(response: String, expectedTypes: Map[String, Any]): Unit = {
+  def checkSALiabilitiesResponse(response: String, mandatoryOnly: Boolean = false): Unit = {
     val responseBody: JsValue    = Json.parse(response)
-    val balances: List[JsObject] = (responseBody \ "balanceDetails").as[List[JsObject]] // Update to balanceDetails
+    val balances: List[JsObject] = (responseBody \ "balanceDetails").as[List[JsObject]]
+
     balances.foreach { balanceItem =>
       expectedTypes.foreach { case (key, expectedType) =>
-        val value      = (balanceItem \ key).get
-        val actualType = value match {
-          case _: JsString => "string"
-          case _: JsNumber => "number"
-          case _           => "unknown"
+        val valueOpt = (balanceItem \ key).asOpt[JsValue]
+
+        if (!mandatoryOnly || mandatoryFields.contains(key)) {
+          valueOpt match {
+            case Some(value) =>
+              val actualType = value match {
+                case _: JsString => "string"
+                case _: JsNumber => "number"
+                case _           => "unknown"
+              }
+
+              assert(actualType == expectedType, s"Expected type is $expectedType, but got $actualType.")
+
+              actualType match {
+                case "number" =>
+                  val amount = value.as[BigDecimal]
+                  assert(isValidNumberFormat(amount), s"Invalid format for $key: $amount")
+
+                case "string" =>
+                  val date = value.as[String]
+                  assert(isValidStringFormat(date), s"Invalid format for $key: $date")
+              }
+            case None        =>
+              if (mandatoryFields.contains(key)) {
+                throw new AssertionError(s"Missing mandatory field: $key")
+              }
+          }
         }
-        assert(actualType == expectedType, s"Expected type is $expectedType, but got $actualType.")
       }
     }
   }
