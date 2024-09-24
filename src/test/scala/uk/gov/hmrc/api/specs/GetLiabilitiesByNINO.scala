@@ -72,7 +72,7 @@ class GetLiabilitiesByNINO extends BaseSpec with BaseHelper {
         "overdueAmount"    -> 9293
       )
 
-      createBalanceDetailsMandatoryOnly(nino, reqPayload)
+      createBalanceDetailsSelectedFields(nino, reqPayload)
 
       When(
         "user sends a GET request to retrieve liability details with valid details"

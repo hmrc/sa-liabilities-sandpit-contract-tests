@@ -65,7 +65,7 @@ object TestDataGenerator extends HttpClient {
 
   }
 
-  def createBalanceDetailsMandatoryOnly(nino: String, reqPayload: JsValue): Future[Unit] = {
+  def createBalanceDetailsSelectedFields(nino: String, reqPayload: JsValue): Future[Unit] = {
     val url = s"http://localhost:9900/balance/$nino"
 
     Future {

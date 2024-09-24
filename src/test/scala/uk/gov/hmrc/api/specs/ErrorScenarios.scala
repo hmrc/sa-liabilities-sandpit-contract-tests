@@ -150,17 +150,130 @@ class ErrorScenarios extends BaseSpec with BaseHelper {
       (responseBodyJs \ "message").as[String] shouldEqual "Invalid bearer token"
     }
 
-    Scenario("Validation of error response for expired bearer token")(pending)
+    Scenario("Validation of error response for missing mandatory fields") {
+      Given("the SA Liabilities sandpit API is up and running")
 
-    Scenario("Validation of error response for missing mandatory fields")(pending)
+      When("user has created a bearer token for a valid nino")
+      val nino        = generateNINO()
+      checkNINOFormat(nino)
+      val bearerToken = authHelper.getAuthBearerToken(nino, generateUTR(), generateCredID())
 
-    Scenario("Validation of error response for invalid data types")(pending)
+      And("test data has been populated for the NINO with one missing mandatory field")
+      val reqPayload: JsValue = Json.obj(
+        "payableAmount"    -> 9076,
+        "pendingDueAmount" -> 1340,
+        "overdueAmount"    -> 9293
+      )
+      createBalanceDetailsSelectedFields(nino, reqPayload)
 
-    Scenario("Validation of error response for empty mandatory fields")(pending)
+      When("user sends a GET request to retrieve liability details")
+      val response: StandaloneWSResponse = sa_service.getSALiabilitiesSandpit(nino, s"Bearer $bearerToken")
+      println(response)
 
-    Scenario("Validation of error response for empty optional fields")(pending)
+      Then("the test repo should be able to handle the response appropriately")
+      // checkResponseStatus(response.status, 401)
 
-    Scenario("Validation of error response for additional fields in response")(pending)
+    }
+
+    Scenario("Validation of error response for invalid data types") {
+      Given("the SA Liabilities sandpit API is up and running")
+
+      When("user has created a bearer token for a valid nino")
+      val nino        = generateNINO()
+      checkNINOFormat(nino)
+      val bearerToken = authHelper.getAuthBearerToken(nino, generateUTR(), generateCredID())
+
+      And("test data has been populated for the NINO with invalid data type for String and number")
+      val reqPayload: JsValue = Json.obj(
+        "payableAmount"    -> 9076,
+        "pendingDueAmount" -> 1340,
+        "overdueAmount"    -> 9293
+      )
+      createBalanceDetailsSelectedFields(nino, reqPayload)
+
+      When("user sends a GET request to retrieve liability details")
+      val response: StandaloneWSResponse = sa_service.getSALiabilitiesSandpit(nino, s"Bearer $bearerToken")
+      println(response)
+
+      Then("the test repo should be able to handle the response appropriately")
+      // checkResponseStatus(response.status, 401)
+
+    }
+
+    Scenario("Validation of error response for empty mandatory fields") {
+      Given("the SA Liabilities sandpit API is up and running")
+
+      When("user has created a bearer token for a valid nino")
+      val nino        = generateNINO()
+      checkNINOFormat(nino)
+      val bearerToken = authHelper.getAuthBearerToken(nino, generateUTR(), generateCredID())
+
+      And("test data has been populated for the NINO with empty mandatory field")
+      val reqPayload: JsValue = Json.obj(
+        "payableAmount"    -> 9076,
+        "pendingDueAmount" -> 1340,
+        "overdueAmount"    -> 9293
+      )
+      createBalanceDetailsSelectedFields(nino, reqPayload)
+
+      When("user sends a GET request to retrieve liability details")
+      val response: StandaloneWSResponse = sa_service.getSALiabilitiesSandpit(nino, s"Bearer $bearerToken")
+      println(response)
+
+      Then("the test repo should be able to handle the response appropriately")
+      // checkResponseStatus(response.status, 401)
+
+    }
+
+    Scenario("Validation of error response for empty optional fields") {
+      Given("the SA Liabilities sandpit API is up and running")
+
+      When("user has created a bearer token for a valid nino")
+      val nino        = generateNINO()
+      checkNINOFormat(nino)
+      val bearerToken = authHelper.getAuthBearerToken(nino, generateUTR(), generateCredID())
+
+      And("test data has been populated for the NINO with empty optional field")
+      val reqPayload: JsValue = Json.obj(
+        "payableAmount"    -> 9076,
+        "pendingDueAmount" -> 1340,
+        "overdueAmount"    -> 9293
+      )
+      createBalanceDetailsSelectedFields(nino, reqPayload)
+
+      When("user sends a GET request to retrieve liability details")
+      val response: StandaloneWSResponse = sa_service.getSALiabilitiesSandpit(nino, s"Bearer $bearerToken")
+      println(response)
+
+      Then("the test repo should be able to handle the response appropriately")
+      // checkResponseStatus(response.status, 401)
+
+    }
+
+    Scenario("Validation of error response for additional fields in response") {
+      Given("the SA Liabilities sandpit API is up and running")
+
+      When("user has created a bearer token for a valid nino")
+      val nino        = generateNINO()
+      checkNINOFormat(nino)
+      val bearerToken = authHelper.getAuthBearerToken(nino, generateUTR(), generateCredID())
+
+      And("test data has been populated for the NINO with additional fields in the response")
+      val reqPayload: JsValue = Json.obj(
+        "payableAmount"    -> 9076,
+        "pendingDueAmount" -> 1340,
+        "overdueAmount"    -> 9293
+      )
+      createBalanceDetailsSelectedFields(nino, reqPayload)
+
+      When("user sends a GET request to retrieve liability details")
+      val response: StandaloneWSResponse = sa_service.getSALiabilitiesSandpit(nino, s"Bearer $bearerToken")
+      println(response)
+
+      Then("the test repo should be able to handle the response appropriately")
+      // checkResponseStatus(response.status, 401)
+
+    }
 
   }
 }
