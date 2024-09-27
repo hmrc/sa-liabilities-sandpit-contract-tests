@@ -89,7 +89,7 @@ class GetLiabilitiesByNINO extends BaseSpec with BaseHelper {
     }
 
     Scenario(
-      "Retrieve liability details for a given valid NINO with multiple liabilities"
+      "Retrieve liability details for a given valid NINO with 2 liabilities and all fields in response payload"
     ) {
       Given("the SA Liabilities sandpit API is up and running")
 
@@ -108,6 +108,14 @@ class GetLiabilitiesByNINO extends BaseSpec with BaseHelper {
       )
       lazy val response = sa_service.getSALiabilitiesSandpit(nino, s"Bearer $bearerToken")
       println(response)
+
+      Then("the response status code should be 200")
+      checkResponseStatus(response.status, 200)
+
+      And("the response body should have the array with balance details as expected including all optional fields")
+      val responseBody = response.body
+      checkBalanceDetailsArrayLength(Json.parse(responseBody), 2)
+      checkSALiabilitiesResponse(responseBody)
     }
 
   }
