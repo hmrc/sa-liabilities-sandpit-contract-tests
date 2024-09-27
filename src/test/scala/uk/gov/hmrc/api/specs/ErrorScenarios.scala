@@ -82,10 +82,10 @@ class ErrorScenarios extends BaseSpec with BaseHelper {
       Then("the error response should be 400")
       checkResponseStatus(response.status, 400)
 
-      And("the errorCode should be set to 1113")
+      And("the errorCode should be set to 1002")
       errorCode shouldBe Some("1002")
 
-      And("the errorDescription should be set to Invalid path parameters")
+      And("the errorDescription should be set to NINO not found")
       errorDescription shouldBe Some("NINO not found")
 
       And("response header should consist of correlation ID")
@@ -149,18 +149,6 @@ class ErrorScenarios extends BaseSpec with BaseHelper {
       val responseBodyJs = Json.parse(response.body)
       (responseBodyJs \ "message").as[String] shouldEqual "Invalid bearer token"
     }
-
-    Scenario("Validation of error response for expired bearer token")(pending)
-
-    Scenario("Validation of error response for missing mandatory fields")(pending)
-
-    Scenario("Validation of error response for invalid data types")(pending)
-
-    Scenario("Validation of error response for empty mandatory fields")(pending)
-
-    Scenario("Validation of error response for empty optional fields")(pending)
-
-    Scenario("Validation of error response for additional fields in response")(pending)
 
   }
 }
