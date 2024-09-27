@@ -57,7 +57,6 @@ class GetLiabilitiesByNINO extends BaseSpec with BaseHelper {
     Scenario(
       "Retrieve liability details for a given valid NINO with single liability and only mandatory fields"
     ) {
-      pending
       Given("the SA Liabilities sandpit API is up and running")
 
       When("user has created a bearer token for a valid nino")
@@ -83,9 +82,9 @@ class GetLiabilitiesByNINO extends BaseSpec with BaseHelper {
       Then("the response status code should be 200")
       checkResponseStatus(response.status, 200)
 
-      And("the response body should have the array with balance details as expected including all optional fields")
+      And("the response body should have the array with balance details as expected")
       val responseBody = response.body
-      checkSALiabilitiesResponse(responseBody)
+      checkSALiabilitiesResponse(responseBody, true)
     }
 
     Scenario(

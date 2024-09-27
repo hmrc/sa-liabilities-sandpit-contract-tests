@@ -33,9 +33,6 @@ trait HttpClient {
   implicit val system: ActorSystem             = ActorSystem()
   implicit val wsClient: StandaloneAhcWSClient = StandaloneAhcWSClient()
 
-  val delayBetweenRetries: FiniteDuration = 12.seconds
-  val maxRetries: Int                     = 3
-
   def getUrl(url: String, requestHeaders: Option[Seq[(String, String)]] = None)(implicit
     client: StandaloneAhcWSClient
   ): StandaloneWSResponse = {
@@ -48,7 +45,7 @@ trait HttpClient {
       case None    => request.get()
     }
 
-    val result = Await.result(response, delayBetweenRetries)
+    val result = Await.result(response, 12.seconds)
     println(s"Response status: ${result.status}")
     println(s"Response body: ${result.body}")
 

@@ -30,14 +30,14 @@ trait BaseHelper {
 
   val mandatoryFields: Set[String] = Set("pendingDueAmount", "payableAmount", "overdueAmount")
 
-  def checkBalanceDetailsArrayLength(balanceDetails: JsValue,  count: Int): Unit =
-
+  def checkBalanceDetailsArrayLength(balanceDetails: JsValue, count: Int): Unit = {
     val balanceDetailsArray = (balanceDetails \ "balanceDetails").as[Seq[JsObject]]
     assert(
       balanceDetailsArray.length == count,
       s"Test failed: Found ${balanceDetailsArray.length} liabilities, but expected $count liabilities"
     )
-  def isValidNumberFormat(value: BigDecimal): Boolean                                         =
+  }
+  def isValidNumberFormat(value: BigDecimal): Boolean                           =
     value >= BigDecimal("-99999999999.99") && value <= BigDecimal("99999999999.99") && value.scale <= 3
 
   def isValidStringFormat(value: String): Boolean = {
