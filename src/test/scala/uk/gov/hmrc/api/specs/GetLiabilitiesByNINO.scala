@@ -99,8 +99,11 @@ class GetLiabilitiesByNINO extends BaseSpec with BaseHelper {
 
       And("test data has been populated for the NINO")
 
-      createBalanceDetailsAllFields(nino)
-      createBalanceDetailsAllFields(nino)
+      val balanceDetail1 = generatePutRequestBody()
+      val balanceDetail2 = generatePutRequestBody()
+
+      createBalanceDetailsSelectedFields(nino, balanceDetail1)
+      createBalanceDetailsSelectedFields(nino, balanceDetail2)
 
       When(
         "user sends a GET request to retrieve liability details with valid details"

@@ -25,8 +25,6 @@ import scala.concurrent.{Await, Awaitable}
 import scala.language.postfixOps
 import play.api.libs.ws.DefaultBodyWritables.writeableOf_String
 
-import scala.annotation.tailrec
-
 trait HttpClient {
 
   val builder: AhcConfigBuilder                = new AhcConfigBuilder()
