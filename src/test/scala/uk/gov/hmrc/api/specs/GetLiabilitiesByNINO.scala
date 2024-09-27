@@ -90,7 +90,25 @@ class GetLiabilitiesByNINO extends BaseSpec with BaseHelper {
 
     Scenario(
       "Retrieve liability details for a given valid NINO with multiple liabilities"
-    )(pending)
+    ) {
+      Given("the SA Liabilities sandpit API is up and running")
+
+      When("user has created a bearer token for a valid nino")
+      val nino        = generateNINO()
+      checkNINOFormat(nino)
+      val bearerToken = authHelper.getAuthBearerToken(nino, generateUTR(), generateCredID())
+
+      And("test data has been populated for the NINO")
+
+      createBalanceDetailsAllFields(nino)
+      createBalanceDetailsAllFields(nino)
+
+      When(
+        "user sends a GET request to retrieve liability details with valid details"
+      )
+      lazy val response = sa_service.getSALiabilitiesSandpit(nino, s"Bearer $bearerToken")
+      println(response)
+    }
 
   }
 
