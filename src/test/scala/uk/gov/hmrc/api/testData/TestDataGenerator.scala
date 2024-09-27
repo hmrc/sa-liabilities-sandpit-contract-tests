@@ -16,16 +16,38 @@
 
 package uk.gov.hmrc.api.testData
 
-import play.api.libs.json.JsValue
+import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.api.client.HttpClient
 
 import scala.util.Random
 import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.ExecutionContext.Implicits.global
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 object TestDataGenerator extends HttpClient {
 
   val random = new Random()
+
+  def generatePutRequestBody(): JsValue = {
+    val payableAmount    = random.nextInt(10000) + 1
+    val pendingDueAmount = random.nextInt(5000) + 1
+    val overdueAmount    = random.nextInt(2000) + 1
+    val totalBalance     = payableAmount + pendingDueAmount + overdueAmount
+
+    val pendingDueDate = LocalDate.now().minusDays(random.nextInt(30)).format(DateTimeFormatter.ISO_LOCAL_DATE)
+    val payableDueDate = LocalDate.now().minusDays(random.nextInt(30)).format(DateTimeFormatter.ISO_LOCAL_DATE)
+
+    Json.obj(
+      "totalBalance"     -> totalBalance,
+      "pendingDueDate"   -> pendingDueDate,
+      "pendingDueAmount" -> pendingDueAmount,
+      "payableAmount"    -> payableAmount,
+      "overdueAmount"    -> overdueAmount,
+      "payableDueDate"   -> payableDueDate
+    )
+
+  }
 
   def generateNINO(): String = {
     val validPrefixes = Seq("AA", "BB", "CC")
