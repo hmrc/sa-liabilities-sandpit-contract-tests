@@ -25,36 +25,6 @@ class GetLiabilitiesByNINO extends BaseSpec with BaseHelper {
   Feature("Retrieve SA Liabilities details for a valid NINO") {
 
     Scenario(
-      "Retrieve liability details for a given valid NINO with single liability and all fields in response payload"
-    ) {
-      Given("the SA Liabilities sandpit API is up and running")
-
-      When("user has created a bearer token for a valid nino")
-      val nino        = generateNINO()
-      checkNINOFormat(nino)
-      val bearerToken = authHelper.getAuthBearerToken(nino, generateUTR(), generateCredID())
-
-      And("test data has been populated for the NINO")
-      createBalanceDetailsAllFields(nino)
-
-      When(
-        "user sends a GET request to retrieve liability details with valid details"
-      )
-      lazy val response = sa_service.getSALiabilitiesSandpit(nino, s"Bearer $bearerToken")
-      println(response)
-
-      Then("the response status code should be 200")
-      checkResponseStatus(response.status, 200)
-
-      And(
-        "the response body should have the array with balance details as expected including all mandatory & optional fields"
-      )
-      val responseBody = response.body
-      checkSALiabilitiesResponse(responseBody, true)
-
-    }
-
-    Scenario(
       "Retrieve liability details for a given valid NINO with single liability and only mandatory fields in response payload"
     ) {
       Given("the SA Liabilities sandpit API is up and running")
@@ -85,6 +55,36 @@ class GetLiabilitiesByNINO extends BaseSpec with BaseHelper {
       And("the response body should have the array with balance details as expected")
       val responseBody = response.body
       checkSALiabilitiesResponse(responseBody, true)
+    }
+
+    Scenario(
+      "Retrieve liability details for a given valid NINO with single liability and all fields in response payload"
+    ) {
+      Given("the SA Liabilities sandpit API is up and running")
+
+      When("user has created a bearer token for a valid nino")
+      val nino        = generateNINO()
+      checkNINOFormat(nino)
+      val bearerToken = authHelper.getAuthBearerToken(nino, generateUTR(), generateCredID())
+
+      And("test data has been populated for the NINO")
+      createBalanceDetailsAllFields(nino)
+
+      When(
+        "user sends a GET request to retrieve liability details with valid details"
+      )
+      lazy val response = sa_service.getSALiabilitiesSandpit(nino, s"Bearer $bearerToken")
+      println(response)
+
+      Then("the response status code should be 200")
+      checkResponseStatus(response.status, 200)
+
+      And(
+        "the response body should have the array with balance details as expected including all mandatory & optional fields"
+      )
+      val responseBody = response.body
+      checkSALiabilitiesResponse(responseBody, true)
+
     }
 
     Scenario(
