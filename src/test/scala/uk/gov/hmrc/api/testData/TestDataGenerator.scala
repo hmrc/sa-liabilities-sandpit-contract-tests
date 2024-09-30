@@ -73,7 +73,7 @@ object TestDataGenerator extends HttpClient {
         "",
         Some(
           Seq(
-            "Accept"                    -> "application/vnd.hmrc.1.0+json",
+            "Accept"                    -> "application/json",
             "X-USE-STRATEGY-GENERATION" -> "randomize"
           )
         )
@@ -89,7 +89,7 @@ object TestDataGenerator extends HttpClient {
 
   def createBalanceDetailsSelectedFields(nino: String, reqPayload: JsValue): Future[Unit] = {
     val url                          = s"http://localhost:9900/balance/$nino"
-    val requestPayloadString: String = reqPayload.toString()
+    val requestPayloadString: String = reqPayload.toString
     Future {
       val response = putUrl(
         url,

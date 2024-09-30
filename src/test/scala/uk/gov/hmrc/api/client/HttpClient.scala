@@ -78,7 +78,7 @@ trait HttpClient {
   )(implicit client: StandaloneAhcWSClient): StandaloneWSResponse = {
 
     val request = client.url(url)
-    println(s"PUT $url\nHeaders: $requestHeaders")
+    println(s"PUT $url\nHeaders: $requestHeaders Body: $body")
 
     val response = requestHeaders match {
       case Some(h) => request.withHttpHeaders(h: _*).put(body)
