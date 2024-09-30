@@ -27,7 +27,6 @@ class GetLiabilitiesByNINO extends BaseSpec with BaseHelper {
     Scenario(
       "Retrieve liability details for a given valid NINO with single liability and all fields in response payload"
     ) {
-      pending
       Given("the SA Liabilities sandpit API is up and running")
 
       When("user has created a bearer token for a valid nino")
@@ -91,7 +90,6 @@ class GetLiabilitiesByNINO extends BaseSpec with BaseHelper {
     Scenario(
       "Retrieve liability details for a given valid NINO with 2 liabilities and all fields in response payload"
     ) {
-      pending
       Given("the SA Liabilities sandpit API is up and running")
 
       When("user has created a bearer token for a valid nino")
